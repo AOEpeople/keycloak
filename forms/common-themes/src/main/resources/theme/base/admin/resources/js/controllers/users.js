@@ -198,6 +198,7 @@ module.controller('UserListCtrl', function($scope, realm, User) {
 module.controller('UserDetailCtrl', function($scope, realm, user, User, UserFederationInstances, $location, Dialog, Notifications) {
     $scope.realm = realm;
     $scope.create = !user.username;
+    $scope.editUsername = $scope.create;
 
     if ($scope.create) {
         $scope.user = { enabled: true, attributes: {} }
@@ -247,11 +248,12 @@ module.controller('UserDetailCtrl', function($scope, realm, user, User, UserFede
         } else {
             User.update({
                 realm: realm.realm,
-                userId: $scope.user.username
+                userId: user.username
             }, $scope.user, function () {
                 $scope.changed = false;
                 user = angular.copy($scope.user);
                 Notifications.success("Your changes have been saved to the user.");
+                $location.url("/realms/" + realm.realm + "/users/" + $scope.user.username);
             });
         }
     };

@@ -320,4 +320,49 @@ public class UserTest extends AbstractClientTest {
         assertNull(user1.getAttributes());
     }
 
+    @Test
+    public void updateUserWithNewUsername() {
+        createUser();
+
+        UserResource user = realm.users().get("user1");
+        UserRepresentation userRep = user.toRepresentation();
+        userRep.setUsername("user11");
+        user.update(userRep);
+
+        userRep = realm.users().get("user11").toRepresentation();
+        assertEquals("user11", userRep.getUsername());
+    }
+
+    @Test
+    public void updateUserWithNewUsernameAccessingViaOldUsername() {
+        createUser();
+
+        try {
+            UserResource user = realm.users().get("user1");
+            UserRepresentation userRep = user.toRepresentation();
+            userRep.setUsername("user1");
+            user.update(userRep);
+
+            realm.users().get("user11").toRepresentation();
+            fail("Expected failure");
+        } catch (ClientErrorException e) {
+            assertEquals(404, e.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void updateUserWithExistingUsername() {
+        createUsers();
+
+        try {
+            UserResource user = realm.users().get("username1");
+            UserRepresentation userRep = user.toRepresentation();
+            userRep.setUsername("username2");
+            user.update(userRep);
+            fail("Expected failure");
+        } catch (ClientErrorException e) {
+            assertEquals(409, e.getResponse().getStatus());
+        }
+    }
+
 }
